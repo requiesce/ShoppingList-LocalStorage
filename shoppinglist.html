@@ -1,0 +1,144 @@
+<!-- KEVIN CHAO -->
+<!-- assignment 11 -->
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SHOPPING LIST</title>
+    <link href="https://fonts.googleapis.com/css?family=Jura" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body> 
+    <div id="app">
+     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse et gravida eros. 
+     Nunc semper, metus eu eleifend faucibus, nulla nisi rutrum diam.
+      <h1>SHOPPING LIST</h1>
+      <ul id="shopping-list">
+      </ul>
+      <div>
+        <input type="text" id="item-input">
+        <button id="add-btn">ADD ITEM</button><br><br>
+        <button id="clr-btn">CLEAR ALL</button>
+      </div>
+    </div>
+
+    <div id="pen"><img src="img/pen.png"></div>
+    <div id="knife"><img src="img/knife.png"></div>
+
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.js"
+      integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
+      crossorigin="anonymous"></script>
+     <script type="text/javascript">
+    // BODY ONLOAD
+    $( document ).ready(() => {
+
+        // COUNTER
+        var number = 1;
+
+        // IF LOCAL STORAGE CONTAINS items, POPULATE LIST
+        if (localStorage.getItem('items'))
+        {
+            var items = localStorage.getItem('items');
+            var itemArray = JSON.parse(items);
+            for (var x of itemArray)
+                {
+                    var strike = (x['status'] == 'strike') ? 'style="text-decoration:line-through"' : '';
+                    $("#shopping-list").append('<li onclick="strike(this);" class="redarial"' + strike + '>' + number.toString() + " " + x['data'] + "</li><br>");
+                    number++;
+                }
+        }
+        else { /*do nothing*/ }
+
+        // ADD ITEM BUTTON
+        $( "#add-btn" ).on( "click", () => {
+          //when this button is clicked, you will append what the user entered in the text field to your list. Then you will style it by making the font-family Arial and the color red.   
+
+            // IF INPUT BOX BLANK
+            if ($("#item-input").val() == "") { /*do nothing*/ }
+            else // INPUT BOX NOT BLANK
+            {
+                // ADD ITEM TO DISPLAYED LIST            
+                $("#shopping-list").append('<li onclick="strike(this);" class="redarial">' + number.toString() + " " + $("#item-input").val()  + "</li><br>");
+
+                let newItem = { 
+                   // $("#item-input").val();
+                    status : 'normal',
+                    data : $("#item-input").val()  
+                };
+                // CHECK IF ITEMS OBJECT IN LOCAL STORAGE ALREADY
+                if (localStorage.getItem('items') === null)
+                {   
+                    let itemArray = [];
+                    itemArray.push(newItem);
+
+                    // CREATE JSON OBJECT TO STORE ITEMS
+                    let items = JSON.stringify(itemArray)
+
+                    // STORE JSON OBJECT
+                    localStorage.setItem('items', items);
+                }
+                else
+                {   // UNPACK JSON OBJECT
+                    let items = localStorage.getItem('items');   
+                    let itemArray = JSON.parse(items);
+
+                    // ADD NEW ITEM TO ARRAY
+                    itemArray.push(newItem);
+
+                    // RE-PACK INTO JSON OBJECT & STORE
+                    localStorage.setItem('items', JSON.stringify(itemArray));
+                }
+                $("#item-input").val("").focus();
+                number++;
+            }
+        });
+
+        // CLEAR ALL BUTTON
+        $( "#clr-btn" ).on( "click", () => {
+            // CLEAR JSON OBJECT FROM LOCAL STORAGE
+            if (localStorage.getItem('items') === null) { /*do nothing*/ }
+            else { localStorage.removeItem('items'); }
+
+            // CLEAR DISPLAYED LIST
+            $("#shopping-list").empty();
+
+            // RESET COUNTER
+            number = 1;
+        });
+     })
+
+        // STRIKETHROUGH / UNSTRIKE CLICKED LINE 
+        function strike(x)
+        {
+            let items = localStorage.getItem('items');   
+            let itemArray = JSON.parse(items);       
+            if (x.style.textDecoration=='line-through') 
+            { 
+                x.style.textDecoration=''; 
+                updateStorage(x, itemArray, 'normal');     
+            }
+            else 
+            { 
+                x.style.textDecoration='line-through'; 
+                updateStorage(x, itemArray, 'strike');
+            }          
+        }  
+
+        function updateStorage(x, itemArray, strikeOrNormal)
+        {
+            for (let i of itemArray)
+            {
+                if (x.innerText.endsWith(i['data']))
+                {
+                    i['status'] = strikeOrNormal;
+                    break;
+                }
+            }  
+            let items = JSON.stringify(itemArray);
+            localStorage.setItem('items', items);        
+        } 
+    </script> 
+</body>
+</html>
